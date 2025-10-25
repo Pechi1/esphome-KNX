@@ -75,14 +75,14 @@ namespace knx {
       print_byte(incomingByte);
 
       if (this->is_knx_control_byte(incomingByte)) {
-        ESP_LOGD(TAG, "We have KNX CONTROL BYTE");
+        ESP_LOGV(TAG, "We have KNX CONTROL BYTE");
         bool interested = this->read_knx_telegram();
         if (interested) {
-          ESP_LOGD(TAG, "Event KNX_TELEGRAM");
+          ESP_LOGV(TAG, "Event KNX_TELEGRAM");
           return KNX_TELEGRAM;
         }
         else {
-          ESP_LOGD(TAG, "Event IRRELEVANT_KNX_TELEGRAM");
+          ESP_LOGV(TAG, "Event IRRELEVANT_KNX_TELEGRAM");
           return IRRELEVANT_KNX_TELEGRAM;
         }
       }
