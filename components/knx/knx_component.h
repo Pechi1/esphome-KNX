@@ -15,10 +15,10 @@ namespace knx {
 
 static const int MAX_LISTEN_GROUP_ADDRESSES=15;
 static const int SERIAL_WRITE_DELAY_MS=100;
-static const byte TPUART_DATA_START_CONTINUE=B10000000;
-static const byte TPUART_DATA_END=B01000000;
+static const uint8_t TPUART_DATA_START_CONTINUE=0b10000000;
+static const uint8_t TPUART_DATA_END=0b01000000;
 // Services from TPUART
-static const byte  TPUART_RESET_INDICATION_BYTE=B11;
+static const uint8_t TPUART_RESET_INDICATION_BYTE=0b11;
 
 enum KnxComponentserial_eventType {
   TPUART_RESET_INDICATION,
@@ -54,33 +54,33 @@ class KnxComponent : public Component, public uart::UARTDevice {
     void send_ack();
     void send_not_addressed();
 
-    bool group_write_bool(String, bool);
-    bool group_write_4bit_int(String, int);
-    bool group_write_4Bit_dim(String, bool, byte);
-    bool group_write_1byte_int(String, int);
-    bool group_write_2byte_int(String, int);
-    bool group_write_2byte_float(String, float);
-    bool group_write_3byte_time(String, int, int, int, int);
-    bool group_write_3byte_date(String, int, int, int);
-    bool group_write_4byte_float(String, float);
-    bool group_write_14byte_text(String, String);
+    bool group_write_bool(std::string, bool);
+    bool group_write_4bit_int(std::string, int);
+    bool group_write_4Bit_dim(std::string, bool, uint8_t);
+    bool group_write_1byte_int(std::string, int);
+    bool group_write_2byte_int(std::string, int);
+    bool group_write_2byte_float(std::string, float);
+    bool group_write_3byte_time(std::string, int, int, int, int);
+    bool group_write_3byte_date(std::string, int, int, int);
+    bool group_write_4byte_float(std::string, float);
+    bool group_write_14byte_text(std::string, std::string);
 
-    bool group_answer_bool(String, bool);
+    bool group_answer_bool(std::string, bool);
     /*
-      bool group_answer_4bit_int(String, int);
-      bool group_answer_4bit_dim(String, bool, byte);
+      bool group_answer_4bit_int(std::string, int);
+      bool group_answer_4bit_dim(std::string, bool, byte);
     */
-    bool group_answer_1byte_int(String, int);
-    bool group_answer_2byte_int(String, int);
-    bool group_answer_2byte_float(String, float);
-    bool group_answer_3byte_time(String, int, int, int, int);
-    bool group_answer_3byte_date(String, int, int, int);
-    bool group_answer_4byte_float(String, float);
-    bool group_answer_14byte_text(String, String);
+    bool group_answer_1byte_int(std::string, int);
+    bool group_answer_2byte_int(std::string, int);
+    bool group_answer_2byte_float(std::string, float);
+    bool group_answer_3byte_time(std::string, int, int, int, int);
+    bool group_answer_3byte_date(std::string, int, int, int);
+    bool group_answer_4byte_float(std::string, float);
+    bool group_answer_14byte_text(std::string, std::string);
 
-    bool group_read(String);
+    bool group_read(std::string);
 
-    void add_listen_group_address(String);
+    void add_listen_group_address(std::string);
     bool is_listening_to_group_address(int, int, int);
 
     bool individual_answer_address();
@@ -109,8 +109,8 @@ class KnxComponent : public Component, public uart::UARTDevice {
     void check_errors();
     void print_byte(int);
     bool read_knx_telegram();
-    void create_knx_message_frame(int, KnxCommandType, String, int);
-    void create_knx_message_frame_individual(int, KnxCommandType, String, int);
+    void create_knx_message_frame(int, KnxCommandType, std::string, int);
+    void create_knx_message_frame_individual(int, KnxCommandType, std::string, int);
     bool send_message();
     bool send_ncd_pos_confirm(int, int, int, int);
     int serial_read();

@@ -22,9 +22,9 @@ namespace knx {
   }
 
   void KnxComponent::setup() {
-    this->_source_area = String(this->use_address_.substr(0, this->use_address_.find('.')).c_str()).toInt();
-    this->_source_line = String(this->use_address_.substr(this->use_address_.find('.') + 1, this->use_address_.length()).substr(0, this->use_address_.substr(this->use_address_.find('.') + 1, this->use_address_.length()).find('.')).c_str()).toInt();
-    this->_source_member = String(this->use_address_.substr(this->use_address_.find_last_of('.') + 1, this->use_address_.length()).c_str()).toInt();
+    this->_source_area = std::stoi(this->use_address_.substr(0, this->use_address_.find('.')));
+    this->_source_line = std::stoi(this->use_address_.substr(this->use_address_.find('.') + 1, this->use_address_.length()).substr(0, this->use_address_.substr(this->use_address_.find('.') + 1, this->use_address_.length()).find('.')));
+    this->_source_member = std::stoi(this->use_address_.substr(this->use_address_.find_last_of('.') + 1, this->use_address_.length()));
     this->_tg = new KnxTelegram();
     this->_tg_ptp = new KnxTelegram();
     this->_listen_to_broadcasts = false;
@@ -53,12 +53,12 @@ namespace knx {
   }
 
   void KnxComponent::uart_reset() {
-    byte sendByte = 0x01;
+    uint8_t sendByte = 0x01;
     this->write(sendByte);
   }
 
   void KnxComponent::uart_state_request() {
-    byte sendByte = 0x02;
+    uint8_t sendByte = 0x02;
     this->write(sendByte);
   }
 
@@ -102,7 +102,7 @@ namespace knx {
 
 
   bool KnxComponent::is_knx_control_byte(int b) {
-    return ( (b | B00101100) == B10111100 ); // Ignore repeat flag and priority flag
+    return ( (b | 0b00101100) == 0b10111100 ); // Ignore repeat flag and priority flag
   }
 
   void KnxComponent::check_errors() {
@@ -169,79 +169,79 @@ namespace knx {
 
   // Command Write
 
-  bool KnxComponent::group_write_bool(String address, bool value) {
+  bool KnxComponent::group_write_bool(std::string address, bool value) {
     int valueAsInt = 0;
     if (value) {
-      valueAsInt = B00000001;
+      valueAsInt = 0b00000001;
     }
 
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, valueAsInt);
     return this->send_message();
   }
 
-  bool KnxComponent::group_write_4bit_int(String address, int value) {
+  bool KnxComponent::group_write_4bit_int(std::string address, int value) {
     int out_value = 0;
     if (value) {
-      out_value = value & B00001111;
+      out_value = value & 0b00001111;
     }
 
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, out_value);
     return this->send_message();
   }
 
-  bool KnxComponent::group_write_4Bit_dim(String address, bool direction, byte steps) {
+  bool KnxComponent::group_write_4Bit_dim(std::string address, bool direction, uint8_t steps) {
     int value = 0;
     if (direction || steps) {
-      value = (direction << 3) + (steps & B00000111);
+      value = (direction << 3) + (steps & 0b00000111);
     }
 
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, value);
     return this->send_message();
   }
 
-  bool KnxComponent::group_write_1byte_int(String address, int value) {
+  bool KnxComponent::group_write_1byte_int(std::string address, int value) {
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, 0);
     this->_tg->set_1byte_int_value(value);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_write_2byte_int(String address, int value) {
+  bool KnxComponent::group_write_2byte_int(std::string address, int value) {
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, 0);
     this->_tg->set_2byte_int_value(value);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_write_2byte_float(String address, float value) {
+  bool KnxComponent::group_write_2byte_float(std::string address, float value) {
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, 0);
     this->_tg->set_2byte_float_value(value);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_write_3byte_time(String address, int weekday, int hour, int minute, int second) {
+  bool KnxComponent::group_write_3byte_time(std::string address, int weekday, int hour, int minute, int second) {
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, 0);
     this->_tg->set_3byte_time(weekday, hour, minute, second);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_write_3byte_date(String address, int day, int month, int year) {
+  bool KnxComponent::group_write_3byte_date(std::string address, int day, int month, int year) {
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, 0);
     this->_tg->set_3byte_date(day, month, year);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_write_4byte_float(String address, float value) {
+  bool KnxComponent::group_write_4byte_float(std::string address, float value) {
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, 0);
     this->_tg->set_4byte_float_value(value);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_write_14byte_text(String address, String value) {
+  bool KnxComponent::group_write_14byte_text(std::string address, std::string value) {
     this->create_knx_message_frame(2, KNX_COMMAND_WRITE, address, 0);
     this->_tg->set_14byte_value(value);
     this->_tg->create_checksum();
@@ -250,10 +250,10 @@ namespace knx {
 
   // Command Answer
 
-  bool KnxComponent::group_answer_bool(String address, bool value) {
+  bool KnxComponent::group_answer_bool(std::string address, bool value) {
     int valueAsInt = 0;
     if (value) {
-      valueAsInt = B00000001;
+      valueAsInt = 0b00000001;
     }
 
     create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, valueAsInt);
@@ -261,20 +261,20 @@ namespace knx {
   }
 
   /*
-    bool KnxComponent::groupAnswerBitInt(String address, int value) {
+    bool KnxComponent::groupAnswerBitInt(std::string address, int value) {
     int out_value = 0;
     if (value) {
-      out_value = value & B00001111;
+      out_value = value & 0b00001111;
     }
 
     this->create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, out_value);
     return this->send_message();
     }
 
-    bool KnxComponent::group_answer_4bit_dim(String address, bool direction, byte steps) {
+    bool KnxComponent::group_answer_4bit_dim(std::string address, bool direction, byte steps) {
     int value = 0;
     if (direction || steps) {
-      value = (direction << 3) + (steps & B00000111);
+      value = (direction << 3) + (steps & 0b00000111);
     }
 
     this->create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, value);
@@ -282,48 +282,48 @@ namespace knx {
     }
   */
 
-  bool KnxComponent::group_answer_1byte_int(String address, int value) {
+  bool KnxComponent::group_answer_1byte_int(std::string address, int value) {
     this->create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, 0);
     this->_tg->set_1byte_int_value(value);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_answer_2byte_int(String address, int value) {
+  bool KnxComponent::group_answer_2byte_int(std::string address, int value) {
     this->create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, 0);
     this->_tg->set_2byte_int_value(value);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_answer_2byte_float(String address, float value) {
+  bool KnxComponent::group_answer_2byte_float(std::string address, float value) {
     this->create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, 0);
     this->_tg->set_2byte_float_value(value);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_answer_3byte_time(String address, int weekday, int hour, int minute, int second) {
+  bool KnxComponent::group_answer_3byte_time(std::string address, int weekday, int hour, int minute, int second) {
     this->create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, 0);
     this->_tg->set_3byte_time(weekday, hour, minute, second);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_answer_3byte_date(String address, int day, int month, int year) {
+  bool KnxComponent::group_answer_3byte_date(std::string address, int day, int month, int year) {
     this->create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, 0);
     this->_tg->set_3byte_date(day, month, year);
     this->_tg->create_checksum();
     return this->send_message();
   }
-  bool KnxComponent::group_answer_4byte_float(String address, float value) {
+  bool KnxComponent::group_answer_4byte_float(std::string address, float value) {
     this->create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, 0);
     this->_tg->set_4byte_float_value(value);
     this->_tg->create_checksum();
     return this->send_message();
   }
 
-  bool KnxComponent::group_answer_14byte_text(String address, String value) {
+  bool KnxComponent::group_answer_14byte_text(std::string address, std::string value) {
     this->create_knx_message_frame(2, KNX_COMMAND_ANSWER, address, 0);
     this->_tg->set_14byte_value(value);
     this->_tg->create_checksum();
@@ -332,7 +332,7 @@ namespace knx {
 
   // Command Read
 
-  bool KnxComponent::group_read(String address) {
+  bool KnxComponent::group_read(std::string address) {
     this->create_knx_message_frame(2, KNX_COMMAND_READ, address, 0);
     this->_tg->create_checksum();
     return this->send_message();
@@ -345,7 +345,7 @@ namespace knx {
   }
 
   bool KnxComponent::individual_answer_mask_version(int area, int line, int member) {
-    this->create_knx_message_frame_individual(4, KNX_COMMAND_MASK_VERSION_RESPONSE, String(area) + "/" + String(line) + "/" + String(member), 0);
+    this->create_knx_message_frame_individual(4, KNX_COMMAND_MASK_VERSION_RESPONSE, std::to_string(area) + "/" + std::to_string(line) + "/" + std::to_string(member), 0);
     this->_tg->set_communication_type(KNX_COMM_NDP);
     this->_tg->set_buffer_byte(8, 0x07); // Mask version part 1 for BIM M 112
     this->_tg->set_buffer_byte(9, 0x01); // Mask version part 2 for BIM M 112
@@ -354,7 +354,7 @@ namespace knx {
   }
 
   bool KnxComponent::individual_answer_auth(int accessLevel, int sequenceNo, int area, int line, int member) {
-    this->create_knx_message_frame_individual(3, KNX_COMMAND_ESCAPE, String(area) + "/" + String(line) + "/" + String(member), KNX_EXT_COMMAND_AUTH_RESPONSE);
+    this->create_knx_message_frame_individual(3, KNX_COMMAND_ESCAPE, std::to_string(area) + "/" + std::to_string(line) + "/" + std::to_string(member), KNX_EXT_COMMAND_AUTH_RESPONSE);
     this->_tg->set_communication_type(KNX_COMM_NDP);
     this->_tg->set_sequence_number(sequenceNo);
     this->_tg->set_buffer_byte(8, accessLevel);
@@ -362,10 +362,10 @@ namespace knx {
     return this->send_message();
   }
 
-  void KnxComponent::create_knx_message_frame(int payloadlength, KnxCommandType command, String address, int firstDataByte) {
-    int mainGroup = address.substring(0, address.indexOf('/')).toInt();
-    int middleGroup = address.substring(address.indexOf('/') + 1, address.length()).substring(0, address.substring(address.indexOf('/') + 1, address.length()).indexOf('/')).toInt();
-    int subGroup = address.substring(address.lastIndexOf('/') + 1, address.length()).toInt();
+  void KnxComponent::create_knx_message_frame(int payloadlength, KnxCommandType command, std::string address, int firstDataByte) {
+    int mainGroup = std::stoi(address.substr(0, address.find('/')));
+    int middleGroup = std::stoi(address.substr(address.find('/') + 1, address.length()).substr(0, address.substr(address.find('/') + 1, address.length()).find('/')));
+    int subGroup = std::stoi(address.substr(address.find_last_of('/') + 1, address.length()));
     this->_tg->clear();
     this->_tg->set_source_address(_source_area, _source_line, _source_member);
     this->_tg->set_target_group_address(mainGroup, middleGroup, subGroup);
@@ -375,10 +375,10 @@ namespace knx {
     this->_tg->create_checksum();
   }
 
-  void KnxComponent::create_knx_message_frame_individual(int payloadlength, KnxCommandType command, String address, int firstDataByte) {
-    int area = address.substring(0, address.indexOf('/')).toInt();
-    int line = address.substring(address.indexOf('/') + 1, address.length()).substring(0, address.substring(address.indexOf('/') + 1, address.length()).indexOf('/')).toInt();
-    int member = address.substring(address.lastIndexOf('/') + 1, address.length()).toInt();
+  void KnxComponent::create_knx_message_frame_individual(int payloadlength, KnxCommandType command, std::string address, int firstDataByte) {
+    int area = std::stoi(address.substr(0, address.find('/')));
+    int line = std::stoi(address.substr(address.find('/') + 1, address.length()).substr(0, address.substr(address.find('/') + 1, address.length()).find('/')));
+    int member = std::stoi(address.substr(address.find_last_of('/') + 1, address.length()));
     this->_tg->clear();
     this->_tg->set_source_address(_source_area, _source_line, _source_member);
     this->_tg->set_target_individual_address(area, line, member);
@@ -420,10 +420,10 @@ namespace knx {
     int confirmation;
     while (true) {
       confirmation = serial_read();
-      if (confirmation == B10001011) {
+      if (confirmation == 0b10001011) {
         return true; // Sent successfully
       }
-      else if (confirmation == B00001011) {
+      else if (confirmation == 0b00001011) {
         return false;
       }
       else if (confirmation == -1) {
@@ -457,11 +457,11 @@ namespace knx {
     int confirmation;
     while (true) {
       confirmation = this->serial_read();
-      if (confirmation == B10001011) {
+      if (confirmation == 0b10001011) {
         delay (SERIAL_WRITE_DELAY_MS);
         return true; // Sent successfully
       }
-      else if (confirmation == B00001011) {
+      else if (confirmation == 0b00001011) {
         delay (SERIAL_WRITE_DELAY_MS);
         return false;
       }
@@ -477,13 +477,13 @@ namespace knx {
   }
 
   void KnxComponent::send_ack() {
-    byte sendByte = B00010001;
+    uint8_t sendByte = 0b00010001;
     this->write(sendByte);
     delay(SERIAL_WRITE_DELAY_MS);
   }
 
   void KnxComponent::send_not_addressed() {
-    byte sendByte = B00010000;
+    uint8_t sendByte = 0b00010000;
     this->write(sendByte);
     delay(SERIAL_WRITE_DELAY_MS);
   }
@@ -509,15 +509,14 @@ namespace knx {
     return inByte;
   }
 
-  void KnxComponent::add_listen_group_address(String address) {
+  void KnxComponent::add_listen_group_address(std::string address) {
     if (_listen_group_address_count >= MAX_LISTEN_GROUP_ADDRESSES) {
       ESP_LOGW(TAG, "Already listening to MAX_LISTEN_GROUP_ADDRESSES, cannot listen to another.");
       return;
     }
-    this->_listen_group_addresses[this->_listen_group_address_count][0] = address.substring(0, address.indexOf('/')).toInt();
-    ;
-    this->_listen_group_addresses[this->_listen_group_address_count][1] = address.substring(address.indexOf('/') + 1, address.length()).substring(0, address.substring(address.indexOf('/') + 1, address.length()).indexOf('/')).toInt();
-    this->_listen_group_addresses[this->_listen_group_address_count][2] = address.substring(address.lastIndexOf('/') + 1, address.length()).toInt();
+    this->_listen_group_addresses[this->_listen_group_address_count][0] = std::stoi(address.substr(0, address.find('/')));
+    this->_listen_group_addresses[this->_listen_group_address_count][1] = std::stoi(address.substr(address.find('/') + 1, address.find_last_of('/') - address.find('/') - 1));
+    this->_listen_group_addresses[this->_listen_group_address_count][2] = std::stoi(address.substr(address.find_last_of('/') + 1));
 
     this->_listen_group_address_count++;
   }

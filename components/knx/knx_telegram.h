@@ -11,53 +11,53 @@
 #ifndef KnxTelegram_h
 #define KnxTelegram_h
 
-#include "Arduino.h"
+#include <string>
 
 #define MAX_KNX_TELEGRAM_SIZE 23
 #define KNX_TELEGRAM_HEADER_SIZE 6
 
 // KNX priorities
 enum KnxPriorityType {
-  KNX_PRIORITY_SYSTEM = B00,
-  KNX_PRIORITY_ALARM = B10,
-  KNX_PRIORITY_HIGH = B01,
-  KNX_PRIORITY_NORMAL = B11
+  KNX_PRIORITY_SYSTEM = 0b00,
+  KNX_PRIORITY_ALARM = 0b10,
+  KNX_PRIORITY_HIGH = 0b01,
+  KNX_PRIORITY_NORMAL = 0b11
 };
 
 // KNX commands / APCI Coding
 enum KnxCommandType {
-  KNX_COMMAND_READ = B0000,
-  KNX_COMMAND_WRITE = B0010,
-  KNX_COMMAND_ANSWER = B0001,
-  KNX_COMMAND_INDIVIDUAL_ADDR_WRITE = B0011,
-  KNX_COMMAND_INDIVIDUAL_ADDR_REQUEST = B0100,
-  KNX_COMMAND_INDIVIDUAL_ADDR_RESPONSE = B0101,
-  KNX_COMMAND_MASK_VERSION_READ = B1100,
-  KNX_COMMAND_MASK_VERSION_RESPONSE = B1101,
-  KNX_COMMAND_RESTART = B1110,
-  KNX_COMMAND_ESCAPE = B1111
+  KNX_COMMAND_READ = 0b0000,
+  KNX_COMMAND_WRITE = 0b0010,
+  KNX_COMMAND_ANSWER = 0b0001,
+  KNX_COMMAND_INDIVIDUAL_ADDR_WRITE = 0b0011,
+  KNX_COMMAND_INDIVIDUAL_ADDR_REQUEST = 0b0100,
+  KNX_COMMAND_INDIVIDUAL_ADDR_RESPONSE = 0b0101,
+  KNX_COMMAND_MASK_VERSION_READ = 0b1100,
+  KNX_COMMAND_MASK_VERSION_RESPONSE = 0b1101,
+  KNX_COMMAND_RESTART = 0b1110,
+  KNX_COMMAND_ESCAPE = 0b1111
 };
 
 // Extended (escaped) KNX commands
 enum KnxExtendedCommandType {
-  KNX_EXT_COMMAND_AUTH_REQUEST = B010001,
-  KNX_EXT_COMMAND_AUTH_RESPONSE = B010010
+  KNX_EXT_COMMAND_AUTH_REQUEST = 0b010001,
+  KNX_EXT_COMMAND_AUTH_RESPONSE = 0b010010
 };
 
 // KNX Transport Layer Communication Type
 enum KnxCommunicationType {
-  KNX_COMM_UDP = B00, // Unnumbered Data Packet
-  KNX_COMM_NDP = B01, // Numbered Data Packet
-  KNX_COMM_UCD = B10, // Unnumbered Control Data
-  KNX_COMM_NCD = B11  // Numbered Control Data
+  KNX_COMM_UDP = 0b00, // Unnumbered Data Packet
+  KNX_COMM_NDP = 0b01, // Numbered Data Packet
+  KNX_COMM_UCD = 0b10, // Unnumbered Control Data
+  KNX_COMM_NCD = 0b11  // Numbered Control Data
 };
 
 // KNX Control Data (for UCD / NCD packets)
 enum KnxControlDataType {
-  KNX_CONTROLDATA_CONNECT = B00,      // UCD
-  KNX_CONTROLDATA_DISCONNECT = B01,   // UCD
-  KNX_CONTROLDATA_POS_CONFIRM = B10,  // NCD
-  KNX_CONTROLDATA_NEG_CONFIRM = B11   // NCD
+  KNX_CONTROLDATA_CONNECT = 0b00,      // UCD
+  KNX_CONTROLDATA_DISCONNECT = 0b01,   // UCD
+  KNX_CONTROLDATA_POS_CONFIRM = 0b10,  // NCD
+  KNX_CONTROLDATA_NEG_CONFIRM = 0b11   // NCD
 };
 
 class KnxTelegram {
@@ -80,7 +80,7 @@ class KnxTelegram {
     void set_target_group_address(int main, int middle, int sub);
     void set_target_individual_address(int area, int line, int member);
     bool is_target_group();
-    String get_target_group();
+    std::string get_target_group();
     int get_target_main_group();
     int get_target_middle_group();
     int get_target_sub_group();
@@ -98,7 +98,7 @@ class KnxTelegram {
 
     int get_4bit_int_value();
     bool get_4bit_direction_value();
-    byte get_4bit_steps_value();
+    uint8_t get_4bit_steps_value();
 
     void set_1byte_int_value(int value);
     int get_1byte_int_value();
@@ -121,8 +121,8 @@ class KnxTelegram {
     void set_4byte_float_value(float value);
     float get_4byte_float_value();
 
-    void set_14byte_value(String value);
-    String get_14byte_value();
+    void set_14byte_value(std::string value);
+    std::string get_14byte_value();
 
     void create_checksum();
     bool verify_checksum();
